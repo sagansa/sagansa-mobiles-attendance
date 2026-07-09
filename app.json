@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Sagansa Attendance",
-    "slug": "presence",
+    "slug": "sagansa-attendance",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -68,10 +68,7 @@
     },
     "extra": {
       "apiUrl": "https://api-mobile.sagansa.id/api",
-      "EXPO_PUBLIC_API_BASE_URL": "https://api-mobile.sagansa.id/api",
-      "eas": {
-        "projectId": ""
-      }
+      "EXPO_PUBLIC_API_BASE_URL": "https://api-mobile.sagansa.id/api"
     }
   }
 }

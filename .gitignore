@@ -41,9 +41,14 @@ app-example
 
 # Play Store signing & service account (secrets — never commit)
 assets/store/google-service-account-key.json
-assets/store/*.keystore
+upload-keystore.jks
 *.keystore
+*.jks
+android/key.properties
+android/debug.keystore
 keystore/
 
-# EAS build artifacts
+# Gradle build artifacts
+android/app/build/
+android/.gradle/
 build/
