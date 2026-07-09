@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!--
+    Splash icon. Rendered on solid maroon background (set in app.json splash backgroundColor).
+    Expo will scale this to imageWidth=200 device px and center it.
+    We keep the emblem centered on a transparent canvas.
+  -->
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F4D58D"/>
+      <stop offset="50%" stop-color="#E9B44C"/>
+      <stop offset="100%" stop-color="#C8902F"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1024" height="1024" fill="none"/>
+
+  <g transform="translate(512 512)">
+    <circle r="300" fill="none" stroke="url(#gold)" stroke-width="16" opacity="0.9"/>
+
+    <path d="
+      M -120 -40
+      C -120 -150, -40 -190, 40 -160
+      C 110 -135, 130 -70, 70 -30
+      C 30 -5, -30 10, -70 40
+      C -130 80, -110 150, -40 175
+      C 40 200, 120 160, 120 60"
+      fill="none" stroke="url(#gold)" stroke-width="62" stroke-linecap="round"/>
+
+    <path d="M -8 18 L 42 78 L 130 -50"
+          fill="none" stroke="#F4E5C2" stroke-width="42" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <circle cx="120" cy="-160" r="15" fill="#F4D58D"/>
+    <circle cx="-120" cy="175" r="15" fill="#F4D58D"/>
+  </g>
+
+  <!-- Wordmark under emblem (cream) -->
+  <text x="512" y="900" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="86" font-weight="700" letter-spacing="4"
+        fill="#F4E5C2">SAGANSA</text>
+</svg>

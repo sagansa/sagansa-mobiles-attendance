@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!--
+    Play Store icon: MUST be 512x512 PNG, opaque (no alpha allowed by Play Store).
+    Scale of the main icon.svg design to 512 canvas, opaque background.
+  -->
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#9B2226"/>
+      <stop offset="60%" stop-color="#7A1A1E"/>
+      <stop offset="100%" stop-color="#5A1014"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F4D58D"/>
+      <stop offset="50%" stop-color="#E9B44C"/>
+      <stop offset="100%" stop-color="#C8902F"/>
+    </linearGradient>
+    <pattern id="parang" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <path d="M0 0 L30 0 L60 30 L60 60 L30 60 L0 30 Z" fill="none" stroke="#E9B44C" stroke-width="1" opacity="0.07"/>
+    </pattern>
+    <radialGradient id="vignette" cx="50%" cy="50%" r="60%">
+      <stop offset="70%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.35"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <rect width="512" height="512" fill="url(#parang)"/>
+  <rect width="512" height="512" fill="url(#vignette)"/>
+
+  <g transform="translate(256 256)">
+    <circle r="150" fill="none" stroke="url(#gold)" stroke-width="7" opacity="0.9"/>
+    <circle r="133" fill="#5A1014" opacity="0.55"/>
+
+    <path d="
+      M -60 -20
+      C -60 -75, -20 -95, 20 -80
+      C 55 -67, 65 -35, 35 -15
+      C 15 -2, -15 5, -35 20
+      C -65 40, -55 75, -20 87
+      C 20 100, 60 80, 60 30"
+      fill="none" stroke="url(#gold)" stroke-width="29" stroke-linecap="round"/>
+
+    <path d="M -4 9 L 21 39 L 65 -25"
+          fill="none" stroke="#F4E5C2" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <circle cx="60" cy="-80" r="7" fill="#F4D58D"/>
+    <circle cx="-60" cy="87" r="7" fill="#F4D58D"/>
+  </g>
+</svg>

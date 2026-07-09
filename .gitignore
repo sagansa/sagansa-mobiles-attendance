@@ -32,8 +32,18 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
 
 # typescript
 *.tsbuildinfo
 
 app-example
+
+# Play Store signing & service account (secrets — never commit)
+assets/store/google-service-account-key.json
+assets/store/*.keystore
+*.keystore
+keystore/
+
+# EAS build artifacts
+build/

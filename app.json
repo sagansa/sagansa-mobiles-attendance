@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "presence",
+    "name": "Sagansa Attendance",
     "slug": "presence",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,15 +8,29 @@
     "scheme": "presence",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "description": "Aplikasi absensi & kehadiran karyawan Sagansa: clock-in/out dengan verifikasi lokasi GPS, pengajuan cuti, dan riwayat kehadiran.",
+    "owner": "dityoenggar",
+    "githubUrl": "https://github.com/sagansa/sagansa-mobiles-attendance",
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "id.sagansa.attendance",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#9B2226"
       },
-      "edgeToEdgeEnabled": true
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA"
+      ],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -31,16 +45,33 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#9B2226"
         }
-      ]
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUseNote": "Lokasi digunakan untuk memverifikasi kehadiran Anda saat clock-in/out."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Akses foto diperlukan untuk melampirkan bukti saat clock-in/out.",
+          "cameraPermission": "Akses kamera diperlukan untuk memotret bukti kehadiran saat clock-in/out."
+        }
+      ],
+      "./plugins/withAndroidAppName"
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
-      "apiUrl": "http://localhost:8001/api",
-      "EXPO_PUBLIC_API_BASE_URL": "http://localhost:8001/api"
+      "apiUrl": "https://api-mobile.sagansa.id/api",
+      "EXPO_PUBLIC_API_BASE_URL": "https://api-mobile.sagansa.id/api",
+      "eas": {
+        "projectId": ""
+      }
     }
   }
 }
