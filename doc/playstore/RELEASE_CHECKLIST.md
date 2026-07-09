@@ -9,30 +9,47 @@ Urutan langkah submit ke Play Console. Centang saat selesai.
 - [x] `app.json` final: `name`, `android.package = id.sagansa.attendance`, `versionCode`, `permissions`
 - [x] Plugin lokalisasi nama app (`plugins/withAndroidAppName.js`) → `values-id`/`values-in`
 - [x] Aset branding tema Lokal Indonesia (`assets/images/*`, `assets/store/playstore-icon.png`)
-- [x] `eas.json` profile `production` (AAB) + `preview` (APK) + `development`
+- [x] **Bare workflow** (folder `android/` di-commit), signing via `android/key.properties`
+- [x] Keystore release `upload-keystore.jks` (reuse dari `mobiles/point-of-sale`)
 - [x] `.gitignore` mengeksklud secret & build artifact
 - [x] Dokumen: `LISTING.md`, `DATA_SAFETY.md`, `PRIVACY_POLICY.md`, `RELEASE_CHECKLIST.md`
 
+## Stack versi (Expo SDK 57)
+
+| Komponen | Versi |
+|---|---|
+| Expo SDK | 57.0.4 |
+| React Native | 0.86.0 |
+| React | 19.2.3 |
+| Gradle | 9.3.1 |
+| Hermes | v0.17.0 |
+
 ## B. Verifikasi sebelum build
 
-- [ ] Jalankan `npx expo prebuild --platform android` (opsional, untuk validasi plugin native) — hati-hati, akan membuat folder `android/`; jangan commit kecuali mau workflow bare
-- [ ] Build APK preview & smoke-test install di device fisik / emulator
+- [ ] Jalankan `npx expo prebuild --platform android --no-install` bila `android/` perlu diregenerate
+  - **Catatan**: setelah prebuild, signing block di `android/app/build.gradle` hilang (ter-overwrite).
+    Re-apply manual bagian `key.properties` + `signingConfigs.release` (lihat git history / build.gradle saat ini).
+- [ ] Build APK preview & smoke-test install di device fisik / emulator:
   ```bash
-  eas build --platform android --profile preview
-  # download APK, install, cek: nama launcher (ganti locale HP ke ID), permission prompt, clock-in/out, foto, cuti
+  cd android && ./gradlew assembleRelease
+  # output: android/app/build/outputs/apk/release/app-release.apk
   ```
-- [ ] Verifikasi nama launcher: set locale HP Indonesia → harus muncul "Hadir by Sagansa"; locale English → "Sagansa Attendance"
+  Cek: nama launcher (ganti locale HP ke ID), permission prompt, clock-in/out, foto, cuti
+- [ ] Verifikasi nama launcher: locale HP Indonesia → "Hadir by Sagansa"; locale English → "Sagansa Attendance"
 
 ## C. Build AAB production
 
-- [ ] Login EAS: `eas login` (akun `dityoenggar`)
-- [ ] Inisialisasi project EAS (jika pertama): `eas init` → catat **projectId**, isi ke `app.json` → `extra.eas.projectId`
-- [ ] Atur kredensial: gunakan **EAS-managed keystore** (rekomendasi) saat prompt pertama build
+- [ ] Pastikan `android/key.properties` ada (di-gitignore; salin dari point-of-sale atau lihat `key.properties.example`)
 - [ ] Build:
   ```bash
-  eas build --platform android --profile production
+  cd android
+  export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+  ./gradlew bundleRelease
   ```
-- [ ] Catat: build number, commit SHA, link download `.aab`
+- [ ] Output: `android/app/build/outputs/bundle/release/app-release.aab`
+- [ ] Verifikasi signing: `keytool -list -keystore ../upload-keystore.jks -storepass <pass> -alias upload -v`
+  harus cocok SHA1 `94:06:1E:64:56:BF:E0:25:09:BC:97:40:2F:60:E3:FF:63:51:79:D1`
+- [ ] Catat: build number, commit SHA, ukuran AAB
 
 ## D. Play Console — setup app
 
@@ -61,10 +78,11 @@ Urutan langkah submit ke Play Console. Centang saat selesai.
 
 ## F. Pasca-rilis
 
-- [ ] Simpan backup keystore & credentials (jika EAS-managed, catat di 1Password/vault)
+- [ ] Simpan backup keystore `upload-keystore.jks` di tempat aman (1Password / vault)
 - [ ] Catat SHA-1/SHA-256 (untuk Google Sign-In / Maps API key bila nanti perlu)
-- [ ] Pantau review, crash (VT / Play Vitals), dan ANR
-- [ ] Update: ubah `version` & `versionCode` di `app.json`, rebuild AAB, upload sebagai release baru
+- [ ] Pantau review, crash (Play Vitals), dan ANR
+- [ ] Update: ubah `version` & `android.versionCode` di `app.json`, lalu `cd android && ./gradlew bundleRelease`,
+      upload sebagai release baru
 
 ---
 
@@ -72,7 +90,9 @@ Urutan langkah submit ke Play Console. Centang saat selesai.
 
 - **Package ID `id.sagansa.attendance` permanen** — tidak bisa diubah setelah rilis pertama.
 - **Keystore harus sama** untuk semua update. Kehilangan = tidak bisa update app yang sama.
-  Jika EAS-managed, catat di vault; cadangkan secara lokal bila perlu.
+  Keystore saat ini di-share dengan `mobiles/point-of-sale` (`id.sagansa.pos`) — aman, Play Store izinkan
+  keystore sama untuk app berbeda.
 - **Privacy Policy URL wajib publik** dan dapat diakses tanpa login.
 - **App name localization di Play Store listing** diatur di Play Console (bukan di APK).
-  Yang di APK adalah nama di **launcher** (sudah ditangani plugin langkah B).
+  Yang di APK adalah nama di **launcher** (sudah ditangani plugin `withAndroidAppName`).
+- **Build butuh JDK 17**: `export JAVA_HOME=$(/usr/libexec/java_home -v 17)`
