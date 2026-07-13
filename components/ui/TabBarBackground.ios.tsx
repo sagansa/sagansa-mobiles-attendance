@@ -1,6 +1,9 @@
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useContext } from 'react';
 import { BlurView } from 'expo-blur';
 import { StyleSheet } from 'react-native';
+
+// Access bottom tab bar height context set by expo-router's Tabs navigator (SDK 56+)
+const BottomTabBarHeightContext = require('expo-router/build/react-navigation/bottom-tabs/utils/BottomTabBarHeightContext').BottomTabBarHeightContext;
 
 export default function BlurTabBarBackground() {
   return (
@@ -14,6 +17,6 @@ export default function BlurTabBarBackground() {
   );
 }
 
-export function useBottomTabOverflow() {
-  return useBottomTabBarHeight();
+export function useBottomTabOverflow(): number {
+  return useContext(BottomTabBarHeightContext) ?? 0;
 }

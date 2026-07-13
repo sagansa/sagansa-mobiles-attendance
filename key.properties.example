@@ -1,0 +1,30 @@
+# Template konfigurasi signing untuk release build Android (Play Store).
+#
+# Cara pakai:
+#   1. Generate upload keystore (sekali per app). Dari root project:
+#        keytool -genkey -v \
+#          -keystore upload-keystore.jks \
+#          -keyalg RSA -keysize 2048 -validity 10000 -alias upload \
+#          -dname "CN=Sagansa, OU=Engineering, O=Sagansa, L=Jakarta, ST=DKI Jakarta, C=ID"
+#      Keytool akan minta keystore password & key password — catat baik-baik.
+#   2. Copy template ini ke android/key.properties:
+#        cp key.properties.example android/key.properties
+#   3. Isi nilai sesuai keystore Anda. JANGAN commit file android/key.properties
+#      — sudah di-gitignore.
+#   4. build.gradle membaca android/key.properties secara kondisional: bila
+#      tidak ada / tidak lengkap, release build fallback ke debug signing (yang
+#      TIDAK bisa di-upload ke Play Store). Jadi pastikan terisi benar sebelum
+#      build release.
+#
+# PENTING: `npx expo prebuild --clean` MENGHAPUS signing block di
+# android/app/build.gradle. Setelah prebuild, re-apply manual block
+# keystoreProperties + signingConfigs.release (lihat RELEASE_CHECKLIST.md).
+#
+# KEAMANAN: password di file ini rahasia. Jangan share di chat/email publik.
+# Simpan backup keystore & password di tempat aman (password manager). Jika
+# upload key hilang, Anda tidak bisa update app di Play Store tanpa reset key.
+
+storePassword=UBAH_DENGAN_PASSWORD_KEYSTORE
+keyPassword=UBAH_DENGAN_PASSWORD_KEY
+keyAlias=upload
+storeFile=../upload-keystore.jks

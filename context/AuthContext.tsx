@@ -48,6 +48,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setRoles(roleNames);
         setPermissions(Array.isArray(abilityNames) ? abilityNames : []);
         setToken(storedToken);
+
+        // Auto-save tenant_id for consistency (like POS does)
+        if (profile?.tenant_id) {
+          await AsyncStorage.setItem('active_tenant_id', profile.tenant_id);
+        }
       } catch (error) {
         await AsyncStorage.removeItem(TOKEN_STORAGE_KEY);
         setUser(null);
@@ -105,7 +110,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     } catch (error) {
       // Best effort logout; ignore API errors and continue clearing state.
     } finally {
-      await AsyncStorage.removeItem(TOKEN_STORAGE_KEY);
+      await AsyncStorage.multiRemove([TOKEN_STORAGE_KEY, 'active_tenant_id']);
       setToken(null);
       setUser(null);
       setRoles([]);

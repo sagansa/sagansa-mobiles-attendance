@@ -30,24 +30,32 @@ export default function TenantSelectionScreen() {
     const [selecting, setSelecting] = useState(false);
 
     useEffect(() => {
-        loadTenants();
-    }, []);
+        if (token) {
+            loadTenants();
+        }
+    }, [token]);
 
     async function loadTenants() {
         try {
             setLoading(true);
-            console.log('🔄 Fetching accessible tenants...');
-            console.log('🔑 Token from context:', token ? 'exists' : 'null');
+            setError(null);
 
-            if (!token) {
+            // Use context token or fallback to AsyncStorage
+            let authToken = token;
+            if (!authToken) {
+                try {
+                    authToken = await AsyncStorage.getItem('@presence/auth-token');
+                } catch {}
+            }
+
+            if (!authToken) {
                 setError('Token tidak ditemukan. Silakan login ulang.');
                 return;
             }
 
-            console.log('📡 Sending request to /tenants/accessible');
             const data = await apiFetch<{ success: boolean; tenants: Tenant[] }>('/tenants/accessible', {
                 method: 'GET',
-                token,
+                token: authToken,
             });
             console.log('✅ Tenants response:', data);
 
@@ -256,7 +264,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     overlay: {
-        ...StyleSheet.absoluteFillObject,
+        ...StyleSheet.absoluteFill,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         justifyContent: 'center',
         alignItems: 'center',

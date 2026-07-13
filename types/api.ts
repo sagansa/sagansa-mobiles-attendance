@@ -28,6 +28,18 @@ export interface TenantSummary {
   shift_stores?: ShiftStoreSummary[];
 }
 
+/**
+ * Pilihan tenant yang dapat diakses user (dari login response `user.tenants`
+ * atau `GET /tenants/accessible`). Dipakai untuk tenant selector multi-tenant.
+ */
+export interface TenantChoice {
+  id: string;
+  name: string;
+  is_owner?: boolean;
+  is_primary?: boolean;
+  role?: string | null;
+}
+
 export interface UserSummary {
   id: string;
   name: string;
@@ -49,8 +61,10 @@ export interface User {
   updated_at?: string;
   tenant_id?: string | null;
   tenant?: TenantSummary | null;
-  tenants?: TenantSummary[];
+  tenants?: TenantChoice[];
   roles?: RoleSummary[];
+  role?: string;
+  base_role?: string;
 }
 
 export interface AttendanceLocation {
@@ -109,7 +123,7 @@ export interface RegisterPayload {
   email: string;
   password: string;
   password_confirmation: string;
-  tenant_name?: string;
+  tenant_name: string;
 }
 
 export interface RegisterSuccessResponse {

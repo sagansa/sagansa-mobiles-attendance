@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!--
+    Sagansa Attendance — logo vektor (location pin + clock + checkmark).
+
+    Sumber: interpretasi vektor dari assets/images/logo.jpg.
+    Komposisi mengikuti emblem utama: pin lokasi (badan + kepala) dengan jarum
+    jam di tengah dan tanda centang kehadiran.
+    Skema warna: biru native (#0090F0 -> #022171), canvas transparan.
+
+    Catatan: PNG app-icon/splash diturunkan dari logo.jpg via scripts/generate-icons.py
+    (paling setia ke sumber raster). SVG ini adalah sumber vektor bersih.
+  -->
+  <defs>
+    <!-- Gradien biru utama (terang -> gelap, vertikal). -->
+    <linearGradient id="blue" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0090F0"/>
+      <stop offset="55%" stop-color="#0060E0"/>
+      <stop offset="100%" stop-color="#022171"/>
+    </linearGradient>
+    <!-- Gradien biru terang untuk aksen (jarum / centang). -->
+    <linearGradient id="blueLight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1090F0"/>
+      <stop offset="100%" stop-color="#0070E8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Canvas transparan; latar putih disediakan saat komposit di generate-icons.py. -->
+  <rect width="512" height="512" fill="none"/>
+
+  <!--
+    Location pin: bentuk "tetesan" klasik (lingkaran atas + tajam ke bawah).
+    Titik pusat ~ (256, 232), tinggi ~ 300.
+  -->
+  <g transform="translate(256 256)">
+    <!-- Badan pin (outline tebal + fill gradien). -->
+    <path d="
+      M 0 -150
+      C  83 -150  150  -83  150   0
+      C  150  60   95  120   18  200
+      C   8  212  -8  212 -18  200
+      C -95  120 -150  60 -150   0
+      C -150 -83  -83 -150   0 -150 Z"
+      fill="url(#blue)"/>
+
+    <!-- Lingkaran dalam (area jam, putih) di kepala pin. -->
+    <circle cx="0" cy="-12" r="74" fill="#FFFFFF"/>
+
+    <!-- Jarum jam (jam & menit) menunjuk ~10:10 (pose klasik logo jam). -->
+    <g stroke="url(#blueLight)" stroke-width="12" stroke-linecap="round" fill="none">
+      <!-- Jarum pendek (jam): menuju pukul 10. -->
+      <line x1="0" y1="-12" x2="-34" y2="-46"/>
+      <!-- Jarum panjang (menit): menuju menit ke-10 (atas-sedikit kanan). -->
+      <line x1="0" y1="-12" x2="10" y2="-66"/>
+    </g>
+    <!-- Pusat jam. -->
+    <circle cx="0" cy="-12" r="8" fill="#022171"/>
+
+    <!-- Tanda centang kehadiran di bawah kepala pin (di area badan). -->
+    <path d="M -30 52 L -6 78 L 38 30"
+          fill="none" stroke="#FFFFFF" stroke-width="14"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

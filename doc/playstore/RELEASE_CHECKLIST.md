@@ -27,8 +27,16 @@ Urutan langkah submit ke Play Console. Centang saat selesai.
 ## B. Verifikasi sebelum build
 
 - [ ] Jalankan `npx expo prebuild --platform android --no-install` bila `android/` perlu diregenerate
-  - **Catatan**: setelah prebuild, signing block di `android/app/build.gradle` hilang (ter-overwrite).
-    Re-apply manual bagian `key.properties` + `signingConfigs.release` (lihat git history / build.gradle saat ini).
+  - **PERINGATAN**: `prebuild` (apalagi dengan `--clean`) MENGHAPUS signing block di
+    `android/app/build.gradle`. Setelah prebuild, WAJIB re-apply manual:
+    1. Block `def keystoreProperties = new Properties()` ... `def hasReleaseKeystore` di puncak file
+       (setelah `def projectRoot`).
+    2. `signingConfigs.release { if (hasReleaseKeystore) { ... } }`.
+    3. `buildTypes.release { signingConfig hasReleaseKeystore ? signingConfigs.release : signingConfigs.debug }`.
+    Sumber kebenaran: `key.properties.example` + git history commit signing-fix.
+  - Lebih aman: **hindari `--clean`** bila hanya bump version — cukup edit `versionCode`/`versionName`
+    di `app.json` lalu `sed`/manual update `android/app/build.gradle` field `versionCode`/`versionName`
+    (prebuild tidak diperlukan untuk bump versi murni).
 - [ ] Build APK preview & smoke-test install di device fisik / emulator:
   ```bash
   cd android && ./gradlew assembleRelease
@@ -47,8 +55,20 @@ Urutan langkah submit ke Play Console. Centang saat selesai.
   ./gradlew bundleRelease
   ```
 - [ ] Output: `android/app/build/outputs/bundle/release/app-release.aab`
-- [ ] Verifikasi signing: `keytool -list -keystore ../upload-keystore.jks -storepass <pass> -alias upload -v`
-  harus cocok SHA1 `94:06:1E:64:56:BF:E0:25:09:BC:97:40:2F:60:E3:FF:63:51:79:D1`
+- [ ] **Verifikasi AAB benar-benar di-sign dengan upload key** (bukan debug keystore):
+  ```bash
+  AAB=android/app/build/outputs/bundle/release/app-release.aab
+  TMP=$(mktemp -d)
+  unzip -o "$AAB" "META-INF/*.RSA" -d "$TMP" >/dev/null
+  keytool -printcert -file "$TMP"/META-INF/*.RSA | grep SHA1
+  rm -rf "$TMP"
+  ```
+  HARUS cocok SHA1 `94:06:1E:64:56:BF:E0:25:09:BC:97:40:2F:60:E3:FF:63:51:79:D1`.
+  Bila muncul SHA1 lain (mis. `5E:8F:16:...`) → AAB ter-sign debug keystore;
+  cek `buildTypes.release` pakai `signingConfigs.release` (bukan `.debug`)
+  dan `android/key.properties` terisi benar.
+- [ ] Verifikasi keystore source: `keytool -list -keystore ../upload-keystore.jks -storepass <pass> -alias upload -v`
+  sebagai cross-check.
 - [ ] Catat: build number, commit SHA, ukuran AAB
 
 ## D. Play Console — setup app

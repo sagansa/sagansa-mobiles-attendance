@@ -15,7 +15,7 @@ import {
   ValidateTokenResponse,
 } from '@/types/api';
 
-const DEFAULT_BASE_URL = 'http://localhost:8001/api';
+const DEFAULT_BASE_URL = 'https://api-mobile.sagansa.id/api';
 
 const expoConfig = Constants?.expoConfig ?? Constants?.manifest;
 const { EXPO_PUBLIC_API_BASE_URL: extraBaseUrl, apiUrl: extraApiUrl } =
@@ -97,7 +97,7 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     if (activeTenantId) {
       requestHeaders['X-Active-Tenant'] = activeTenantId;
     }
-  } catch (e) {
+  } catch {
     // Silently fail if AsyncStorage not available
   }
 
@@ -222,13 +222,13 @@ export async function fetchShiftStores(token: string, storeId?: string): Promise
   const searchParams = new URLSearchParams();
 
   const response = await apiFetch<{
-    success: boolean; data: Array<{
+    success: boolean; data: {
       id: string;
       name: string;
       shift_start_time?: string | null;
       shift_end_time?: string | null;
       duration?: number | null;
-    }>
+    }[]
   }>('/shift-stores' + (searchParams.toString() ? `?${searchParams.toString()}` : ''), {
     method: 'GET',
     token,
@@ -316,7 +316,7 @@ export async function checkOut(token: string, attendanceId: string, payload: Att
 export interface LeaveRequestPayload {
   start_date: string;
   end_date: string;
-  leave_type: 'annual' | 'sick' | 'emergency';
+  leave_type: 'menikah' | 'sakit' | 'pulkam' | 'libur' | 'keluarga_meninggal' | 'lainnya';
   reason: string;
 }
 
@@ -327,6 +327,7 @@ export interface LeaveRequestResponse {
     user_id: string;
     start_date: string;
     end_date: string;
+    type?: string;
     leave_type: string;
     reason: string;
     status: string;
@@ -350,7 +351,8 @@ export interface LeaveRequest {
   user_id: string;
   start_date: string;
   end_date: string;
-  type: string;
+  type: 'menikah' | 'sakit' | 'pulkam' | 'libur' | 'keluarga_meninggal' | 'lainnya' | string;
+  leave_type?: string;
   reason: string;
   status: string;
   duration?: number;
@@ -371,6 +373,9 @@ export async function fetchLeaveRequests(token: string): Promise<{ success: bool
 
   return {
     success: response.success,
-    data: leaveRequests
+    data: leaveRequests.map((leave) => ({
+      ...leave,
+      type: leave.type || leave.leave_type || 'annual',
+    }))
   };
 }
