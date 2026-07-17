@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { PropsWithChildren, createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { Linking } from 'react-native';
 
 import { AttendanceCheckInPayload, AttendanceCheckOutPayload, checkIn as apiCheckIn, checkOut as apiCheckOut, fetchAttendanceList, login as loginRequest, logout as logoutRequest, register as registerRequest, validateToken } from '@/lib/api';
-import { ApiError, Attendance, AttendanceMutationResponse, LoginSuccessResponse, PaginatedResponse, RegisterPayload, RegisterSuccessResponse, User } from '@/types/api';
+import { ApiError, Attendance, AttendanceMutationResponse, LoginSuccessResponse, PaginatedResponse, RegisterPayload, RegisterSuccessResponse, UpgradeRequiredError, User } from '@/types/api';
 
 type AuthContextValue = {
   user: User | null;
@@ -13,6 +14,8 @@ type AuthContextValue = {
   isAuthenticating: boolean;
   isRegistering: boolean;
   isAuthenticated: boolean;
+  needsUpdate: boolean;
+  updateData: any;
   login: (email: string, password: string) => Promise<LoginSuccessResponse>;
   register: (payload: RegisterPayload) => Promise<RegisterSuccessResponse>;
   logout: () => Promise<void>;
@@ -20,11 +23,20 @@ type AuthContextValue = {
   fetchAttendances: (page?: number, perPage?: number) => Promise<PaginatedResponse<Attendance>>;
   submitCheckIn: (payload: AttendanceCheckInPayload) => Promise<AttendanceMutationResponse>;
   submitCheckOut: (attendanceId: string, payload: AttendanceCheckOutPayload) => Promise<AttendanceMutationResponse>;
+  openUpdateUrl: () => void;
 };
 
 const TOKEN_STORAGE_KEY = '@presence/auth-token';
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+export function useAuth(): AuthContextValue {
+  const context = React.useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<User | null>(null);
@@ -34,6 +46,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
+  const [needsUpdate, setNeedsUpdate] = useState(false);
+  const [updateData, setUpdateData] = useState<any>(null);
+
+  const openUpdateUrl = useCallback(() => {
+    if (updateData?.download_url) {
+      Linking.openURL(updateData.download_url);
+    }
+  }, [updateData]);
 
   useEffect(() => {
     const bootstrap = async () => {
@@ -54,6 +74,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
           await AsyncStorage.setItem('active_tenant_id', profile.tenant_id);
         }
       } catch (error) {
+        // Handle upgrade required - show update screen
+        if (error instanceof UpgradeRequiredError) {
+          console.warn('App upgrade required', error);
+          setNeedsUpdate(true);
+          setUpdateData(error.data);
+          setIsBootstrapping(false);
+          return;
+        }
+
         await AsyncStorage.removeItem(TOKEN_STORAGE_KEY);
         setUser(null);
         setRoles([]);
@@ -164,6 +193,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
       isAuthenticating,
       isRegistering,
       isAuthenticated: Boolean(user && token),
+      needsUpdate,
+      updateData,
       login,
       register,
       logout,
@@ -171,8 +202,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
       fetchAttendances: fetchAttendancesWrapped,
       submitCheckIn,
       submitCheckOut,
+      openUpdateUrl,
     }),
-    [user, roles, permissions, token, isBootstrapping, isAuthenticating, isRegistering, login, register, logout, refreshUser, fetchAttendancesWrapped, submitCheckIn, submitCheckOut],
+    [user, roles, permissions, token, isBootstrapping, isAuthenticating, isRegistering, needsUpdate, updateData, login, register, logout, refreshUser, fetchAttendancesWrapped, submitCheckIn, submitCheckOut, openUpdateUrl],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,5 +1,6 @@
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
+import * as Application from 'expo-application';
 
 import {
   ApiError,
@@ -12,6 +13,7 @@ import {
   PaginatedResponse,
   RegisterPayload,
   RegisterSuccessResponse,
+  UpgradeRequiredError,
   ValidateTokenResponse,
 } from '@/types/api';
 
@@ -42,6 +44,16 @@ function resolveBaseUrl() {
 }
 
 const baseUrl = resolveBaseUrl();
+
+// Get app version code for version check
+export async function getAppVersionCode(): Promise<number> {
+  try {
+    const nativeBuildVersion = Application.nativeBuildVersion;
+    return parseInt(nativeBuildVersion || '1', 10);
+  } catch {
+    return 1;
+  }
+}
 
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -101,6 +113,10 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     // Silently fail if AsyncStorage not available
   }
 
+  // Add version code header
+  const versionCode = await getAppVersionCode();
+  requestHeaders['X-App-Version-Code'] = versionCode.toString();
+
   const url = `${baseUrl}${path}`;
   if (__DEV__) {
     console.info('[apiFetch] request', {
@@ -111,6 +127,7 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
       hasBody: Boolean(body),
       isFormData,
       activeTenant: requestHeaders['X-Active-Tenant'] ?? null,
+      versionCode,
     });
   }
 
@@ -134,6 +151,18 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     }
 
     throw error;
+  }
+
+  // Handle 426 Upgrade Required
+  if (response.status === 426) {
+    const text = await response.text();
+    let data: any = null;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { message: text };
+    }
+    throw new UpgradeRequiredError(data?.message || 'Silakan update aplikasi', data);
   }
 
   const text = await response.text();

@@ -45,14 +45,16 @@ function AttendanceCardComponent({ attendance, showStatus = true }: AttendanceCa
   const dateReference = attendance.check_in ?? attendance.created_at;
   const checkInLabel = formatTime(attendance.check_in);
   const checkOutLabel = formatTime(attendance.check_out);
-  const storeNickname = attendance.store?.nickname;
-  const storeRadius = attendance.store?.radius;
+  const creatorName = attendance.creator?.name ?? attendance.created_by?.name;
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <View>
           <Text style={styles.storeName}>{attendance.store?.nickname ?? attendance.store?.name ?? 'Lokasi tidak diketahui'}</Text>
+          {creatorName ? (
+            <Text style={styles.creatorName}>{creatorName}</Text>
+          ) : null}
           <Text style={styles.dateText}>{formatDate(dateReference)}</Text>
           {attendance.shift_store?.name ? (
             <Text style={styles.storeMeta}>{attendance.shift_store.name}</Text>
@@ -115,6 +117,12 @@ const styles = StyleSheet.create({
   storeName: {
     fontSize: 16,
     fontWeight: '700',
+  },
+  creatorName: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#374151',
+    marginTop: 2,
   },
   dateText: {
     fontSize: 13,

@@ -91,6 +91,7 @@ export interface Attendance {
   location_out?: AttendanceLocation | null;
   auto_checked_out_at?: string | null;
   created_by?: UserSummary | null;
+  creator?: UserSummary | null;
   created_by_id: string;
   approved_by?: UserSummary | null;
   approved_by_id?: string | null;
@@ -172,5 +173,14 @@ export class ApiError extends Error {
     this.name = 'ApiError';
     this.status = status;
     this.details = details;
+  }
+}
+
+export class UpgradeRequiredError extends Error {
+  public readonly data: any;
+  constructor(message: string, data: any) {
+    super(message);
+    this.name = 'UpgradeRequiredError';
+    this.data = data;
   }
 }
